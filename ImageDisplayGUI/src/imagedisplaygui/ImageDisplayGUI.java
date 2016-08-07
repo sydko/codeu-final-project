@@ -33,18 +33,29 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import java.security.cert.X509Certificate;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventType;
 import javafx.scene.CacheHint;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
+import javafx.stage.Modality;
 
 /**
  *
@@ -111,7 +122,7 @@ public class ImageDisplayGUI extends Application {
 
             });
         Label scenetitle = new Label("Twitter Image Search");
-        scenetitle.setFont(Font.font("Roboto", FontWeight.NORMAL, 72));
+        scenetitle.setFont(Font.font("Tamoha", FontWeight.NORMAL, 72));
         
         Button searchButton = new Button("Search");
         searchButton.setPrefSize(100, 20);
@@ -119,7 +130,7 @@ public class ImageDisplayGUI extends Application {
         searchButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
 //                handleSearchByKey2("", txt.textProperty().toString());
-                addImgToGrid();
+                addImgToGrid(primaryStage);
                 sp.setContent(grid2);
             }
         });
@@ -147,7 +158,7 @@ public class ImageDisplayGUI extends Application {
         primaryStage.show();
     }
     
-    public void addImgToGrid() {
+    public void addImgToGrid(Stage primaryStage) {
         grid2 = new GridPane();
         grid2.setVgap(spacing);
         int hbRow = 1;
@@ -164,7 +175,56 @@ public class ImageDisplayGUI extends Application {
                imgView.setCache(true);
                imgView.setCacheHint(CacheHint.SPEED);
                imgView.setImage(img);
+                
+               imgView.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
 
+                    @Override
+                    public void handle(MouseEvent event) {
+                         final Clipboard clipboard = Clipboard.getSystemClipboard();
+                        final ClipboardContent content = new ClipboardContent();
+                        content.putString(imgUrl);
+                        content.putHtml("<b>"+imgUrl+"</b>");
+                        clipboard.setContent(content);  
+                        
+                        Label label = new Label("Copied URL to Clipboard");
+                        label.setFont(Font.font("Tamoha", FontWeight.NORMAL, 36));
+                        StackPane centeredLabel = new StackPane(label);
+                        centeredLabel.setStyle("-fx-background-color: white; -fx-opacity: 0.8;");
+
+                        StackPane stack = new StackPane(centeredLabel);
+                        stack.setPrefSize(100, 50);
+                        stack.setPadding(new Insets(10));
+
+//                        stack.getChildren().addAll(clipboardTxt,r);
+                        grid.add(stack, 0, 2);
+                        stack.setAlignment(Pos.CENTER);
+                         Task<Void> sleeper = new Task<Void>() {
+                            @Override
+                            protected Void call() throws Exception {
+                                try {
+                                    
+                                    
+                                    Thread.sleep(1000);
+                                } catch (InterruptedException e) {
+                                }
+                                return null;
+                            }
+                        };
+                        sleeper.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
+                            @Override
+                            public void handle(WorkerStateEvent event) {
+                                grid.getChildren().remove(stack);
+                            }
+                        });
+                        try {
+                            new Thread(sleeper).start();  
+                        } catch (Exception e) {
+                            grid.getChildren().remove(stack);
+                        }
+    
+                    }
+               });
+               
                 hbWidth += perfectImgWidth;
                 count += 1;
                 System.out.println(count + ": " + (hbWidth ) + " vs " + (screenWidth - spacing * 4.0 - 17));
@@ -178,7 +238,6 @@ public class ImageDisplayGUI extends Application {
             }
         grid2.add(hb, 0, hbRow);
         
-//        return grid2;
     }
  
     public void handleSearchByKey2(String oldVal, String newVal) {
