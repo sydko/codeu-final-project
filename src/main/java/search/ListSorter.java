@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.flatironschool.javacs;
+package search;
 
 import java.util.ArrayList;
 import java.util.Arrays;

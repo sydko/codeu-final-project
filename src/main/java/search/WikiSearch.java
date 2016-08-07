@@ -1,4 +1,4 @@
-package com.flatironschool.javacs;
+package search;
 
 import java.io.IOException;
 import java.util.Collections;
