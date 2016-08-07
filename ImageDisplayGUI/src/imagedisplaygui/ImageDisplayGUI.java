@@ -37,7 +37,9 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.EventType;
 import javafx.scene.CacheHint;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
@@ -67,6 +69,8 @@ public class ImageDisplayGUI extends Application {
 
         getScreenWidthHeight();
         Scene scene = new Scene(grid, screenWidth, screenHeight);
+        scene.getStylesheets().add("imagedisplaygui/ImageDisplayCss/ImageDisplayGUI.css");
+        
         
         fixHttpsIssue();
         
@@ -77,7 +81,7 @@ public class ImageDisplayGUI extends Application {
         primaryStage.setTitle("Simple Search");
         
         // Set up the ListView
-        list.setMaxHeight(180);
+        list.setMaxHeight(100);
 
         for (String entry : imgArr) {
             entries.add(entry);
@@ -88,29 +92,55 @@ public class ImageDisplayGUI extends Application {
 //        grid.setGridLinesVisible(true);
 //        ScrollPane sp = new ScrollPane(grid2);
         sp.setContent(grid2);
-        grid.add(sp, 0, 1);
+        grid.add(sp, 0, 2);
         grid.setHgrow(sp, Priority.ALWAYS);
         
         TextField txt = new TextField();
         txt.setPromptText("Search");
+        txt.setPrefSize(screenWidth*0.6,20);
+        txt.getStyleClass().add("form-control");
         txt.textProperty().addListener(
             new ChangeListener() {
                 public void changed(ObservableValue observable, 
                                     Object oldVal, Object newVal) {
                     handleSearchByKey2((String)oldVal, (String)newVal);
-                    addImgToGrid();
-                    sp.setContent(grid2);
+//                    addImgToGrid();
+//                    sp.setContent(grid2);
     
                 }
 
             });
-         
-        VBox root = new VBox();
-        root.getChildren().addAll(txt,list);
+        Label scenetitle = new Label("Twitter Image Search");
+        scenetitle.setFont(Font.font("Roboto", FontWeight.NORMAL, 72));
+        
+        Button searchButton = new Button("Search");
+        searchButton.setPrefSize(100, 20);
+        searchButton.getStyleClass().add("button-search");
+        searchButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override public void handle(ActionEvent e) {
+//                handleSearchByKey2("", txt.textProperty().toString());
+                addImgToGrid();
+                sp.setContent(grid2);
+            }
+        });
+//        grid.add(scenetitle, 0, 0, 2, 1);
+        HBox root = new HBox();
+        root.getChildren().addAll(txt,searchButton);
+        
 //        root.setPadding(new Insets(10,10,10,10));
 //        root.setSpacing(2);
         
-        grid.add(root, 0, 0);  
+        grid.add(root, 0, 1);  
+        root.setAlignment(Pos.CENTER);
+        StackPane p = new StackPane();
+        p.setPrefSize(700,100);
+        p.getChildren().add(scenetitle);
+        StackPane.setAlignment(scenetitle,Pos.CENTER);
+        grid.add(p, 0,0);
+//        double centerTitle  = (scenetitle.widthProperty().doubleValue()/2.0);
+//        System.out.println(scenetitle.widthProperty().doubleValue());
+//        root.setMargin(scenetitle, new Insets(10,centerTitle,10,centerTitle));
+        
         
         primaryStage.setTitle("San Fransokyo");
         primaryStage.setScene(scene);
@@ -119,14 +149,14 @@ public class ImageDisplayGUI extends Application {
     
     public void addImgToGrid() {
         grid2 = new GridPane();
+        grid2.setVgap(spacing);
         int hbRow = 1;
         int hbWidth = 0;
         HBox hb = new HBox(spacing);
-        
-        
+
         double perfectImgWidth;
-//        int count =0 ;
-        perfectImgWidth = (screenWidth - spacing * 4.0 - 17)/5.0;
+        int count =0 ;
+        perfectImgWidth = (screenWidth - spacing * 4.0 - 17 - 20)/5.0;
             for (Object imgUrlObj : list.getItems()) {
                String imgUrl = (String) imgUrlObj;
                Image img = new Image(imgUrl, perfectImgWidth, 0, true, false, true);
@@ -135,14 +165,14 @@ public class ImageDisplayGUI extends Application {
                imgView.setCacheHint(CacheHint.SPEED);
                imgView.setImage(img);
 
-                hbWidth += imgView.getBoundsInParent().getWidth();
-//                count += 1;
-//                System.out.println(count + ": " + (hbWidth ) + " vs " + (screenWidth - spacing * 4.0 - 17));
+                hbWidth += perfectImgWidth;
+                count += 1;
+                System.out.println(count + ": " + (hbWidth ) + " vs " + (screenWidth - spacing * 4.0 - 17));
                if (hbWidth >= screenWidth - spacing * 4.0 - 17) {             
                     grid2.add(hb, 0, hbRow);
                     hb = new HBox(spacing);
                     hbRow += 1;
-                    hbWidth = (int) imgView.getBoundsInParent().getWidth();
+                    hbWidth = (int) perfectImgWidth;
                }
                hb.getChildren().add(imgView);
             }
@@ -195,27 +225,27 @@ public class ImageDisplayGUI extends Application {
         arr.add("https://pixabay.com/static/uploads/photo/2014/05/23/12/06/cat-351926_960_720.jpg");
         arr.add("http://static.boredpanda.com/blog/wp-content/uploads/2016/04/beautiful-fluffy-cat-british-longhair-thumb.jpg");
         arr.add("http://mikecann.co.uk/wp-content/uploads/2009/12/javafx_logo_color_1.jpg");
-//        arr.add("https://pixabay.com/static/uploads/photo/2014/05/23/12/06/cat-351926_960_720.jpg");
-//        arr.add("https://pixabay.com/static/uploads/photo/2014/05/23/12/06/cat-351926_960_720.jpg");
-//        arr.add("http://static.boredpanda.com/blog/wp-content/uploads/2016/04/beautiful-fluffy-cat-british-longhair-thumb.jpg");
-//        arr.add("http://mikecann.co.uk/wp-content/uploads/2009/12/javafx_logo_color_1.jpg");
-//        arr.add("https://pixabay.com/static/uploads/photo/2014/05/23/12/06/cat-351926_960_720.jpg");
-//        arr.add("https://pixabay.com/static/uploads/photo/2014/05/23/12/06/cat-351926_960_720.jpg");
-//        arr.add("http://static.boredpanda.com/blog/wp-content/uploads/2016/04/beautiful-fluffy-cat-british-longhair-thumb.jpg");
-//        arr.add("http://mikecann.co.uk/wp-content/uploads/2009/12/javafx_logo_color_1.jpg");
-//        arr.add("https://pixabay.com/static/uploads/photo/2014/05/23/12/06/cat-351926_960_720.jpg");
-//        arr.add("https://pixabay.com/static/uploads/photo/2014/05/23/12/06/cat-351926_960_720.jpg");
-//        arr.add("http://static.boredpanda.com/blog/wp-content/uploads/2016/04/beautiful-fluffy-cat-british-longhair-thumb.jpg");
-//        arr.add("http://mikecann.co.uk/wp-content/uploads/2009/12/javafx_logo_color_1.jpg");
-//        arr.add("https://pixabay.com/static/uploads/photo/2014/05/23/12/06/cat-351926_960_720.jpg");
+        arr.add("https://pixabay.com/static/uploads/photo/2014/05/23/12/06/cat-351926_960_720.jpg");
+        arr.add("https://pixabay.com/static/uploads/photo/2014/05/23/12/06/cat-351926_960_720.jpg");
+        arr.add("http://static.boredpanda.com/blog/wp-content/uploads/2016/04/beautiful-fluffy-cat-british-longhair-thumb.jpg");
+        arr.add("http://mikecann.co.uk/wp-content/uploads/2009/12/javafx_logo_color_1.jpg");
+        arr.add("https://pixabay.com/static/uploads/photo/2014/05/23/12/06/cat-351926_960_720.jpg");
+        arr.add("https://pixabay.com/static/uploads/photo/2014/05/23/12/06/cat-351926_960_720.jpg");
+        arr.add("http://static.boredpanda.com/blog/wp-content/uploads/2016/04/beautiful-fluffy-cat-british-longhair-thumb.jpg");
+        arr.add("http://mikecann.co.uk/wp-content/uploads/2009/12/javafx_logo_color_1.jpg");
+        arr.add("https://pixabay.com/static/uploads/photo/2014/05/23/12/06/cat-351926_960_720.jpg");
+        arr.add("https://pixabay.com/static/uploads/photo/2014/05/23/12/06/cat-351926_960_720.jpg");
+        arr.add("http://static.boredpanda.com/blog/wp-content/uploads/2016/04/beautiful-fluffy-cat-british-longhair-thumb.jpg");
+        arr.add("http://mikecann.co.uk/wp-content/uploads/2009/12/javafx_logo_color_1.jpg");
+        arr.add("https://pixabay.com/static/uploads/photo/2014/05/23/12/06/cat-351926_960_720.jpg");
         
         return arr;
     }
     private GridPane initializeGridLayout(GridPane grid) {
-        grid.setAlignment(Pos.CENTER);
+//        grid.setAlignment(Pos.CENTER);
         grid.setHgap(20);
         grid.setVgap(20);
-//        grid.setPadding(new Insets(50,50,50,50));
+        grid.setPadding(new Insets(10,10,10,10));
         return grid;
     }
     
