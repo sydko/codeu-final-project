@@ -1,4 +1,4 @@
-package search;
+package model;
 
 
 import java.io.BufferedReader;

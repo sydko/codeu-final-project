@@ -73,7 +73,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>search.ImageTermFactory</mainClass>
+                            <mainClass>model.ImageTermFactory</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

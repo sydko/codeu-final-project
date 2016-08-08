@@ -1,0 +1,23 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : Aug 6, 2016, 7:48:37 PM
+    Author     : lucyxiao
+*/
+.form-control {
+    -fx-border-radius: 4px;
+    -fx-background-color:white;
+}
+
+.button-search {
+    -fx-border-radius: 4px;
+    -fx-background-color:#cccccc;
+}
+
+.modal {
+    -fx-background-color:#cccccc; 
+}
+
