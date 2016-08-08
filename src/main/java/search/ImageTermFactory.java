@@ -17,6 +17,7 @@
 package search;
 
 // [START import_libraries]
+
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.json.JsonFactory;
@@ -32,8 +33,11 @@ import com.google.api.services.vision.v1.model.Feature;
 import com.google.api.services.vision.v1.model.Image;
 import com.google.common.collect.ImmutableList;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -48,120 +52,137 @@ import java.util.HashMap;
  */
 @SuppressWarnings("serial")
 public class ImageTermFactory {
-  /**
-   * Be sure to specify the name of your application. If the application name is {@code null} or
-   * blank, the application will log a warning. Suggested format is "MyCompany-ProductName/1.0".
-   */
-  private static final String APPLICATION_NAME = "Google-VisionLabelSample/1.0";
+    /**
+     * Be sure to specify the name of your application. If the application name is {@code null} or
+     * blank, the application will log a warning. Suggested format is "MyCompany-ProductName/1.0".
+     */
+    private static final String APPLICATION_NAME = "Google-VisionLabelSample/1.0";
 
-  private static final int MAX_LABELS = 300;
+    private static final int MAX_LABELS = 300;
 
-  // [START run_application]
-  /**
-   * Annotates an image using the Vision API.
-   */
-  public static void main(String[] args) throws IOException, GeneralSecurityException {
-//    if (args.length != 1) {
-//      System.err.println("Missing imagePath argument.");
-//      System.err.println("Usage:");
-//      System.err.printf("\tjava %s imagePath\n", LabelApp.class.getCanonicalName());
-//      System.exit(1);
-//    }
+    // [START run_application]
+
+    /**
+     * Annotates an image using the Vision API.
+     */
+    public static void main(String[] args) throws IOException, GeneralSecurityException {
+    if (args.length != 1) {
+      System.err.println("Missing imagePath argument.");
+      System.err.println("Usage:");
+      System.err.printf("\tjava %s imagePath\n", ImageTermFactory.class.getCanonicalName());
+      System.exit(1);
+    }
 //    Path imagePath = Paths.get(args[0]);
 //
-//    LabelApp app = new LabelApp(getVisionService());
-//    printLabels(System.out, imagePath, app.labelImage(imagePath, MAX_LABELS));
-  }
-
-  public Map<String, Double> getTermMap(String image_url) throws IOException, GeneralSecurityException {
-     Path imagePath = Paths.get(image_url);
-
     ImageTermFactory app = new ImageTermFactory(getVisionService());
-    List<EntityAnnotation> labels = app.labelImage(imagePath, MAX_LABELS);
-
-
-    Map<String, Double> terms = new HashMap<>();
-    for (EntityAnnotation label : labels) {
-      terms.put(label.getDescription(), label.getScore().doubleValue());
+    printLabels(System.out, args[0], app.labelImage(new URL(args[0]), MAX_LABELS));
     }
 
-    return terms;
-  }
+    public Map<String, Double> getTermMap(String image_url) throws IOException, GeneralSecurityException {
+        ImageTermFactory app = new ImageTermFactory(getVisionService());
+        URL url = new URL(image_url);
+        List<EntityAnnotation> labels = app.labelImage(url, MAX_LABELS);
+        Map<String, Double> terms = new HashMap<>();
+        for (EntityAnnotation label : labels) {
+            terms.put(label.getDescription(), label.getScore().doubleValue());
+        }
 
-
-
-  /**
-   * Prints the labels received from the Vision API.
-   */
-  public static void printLabels(PrintStream out, Path imagePath, List<EntityAnnotation> labels) {
-    out.printf("Labels for image %s:\n", imagePath);
-    for (EntityAnnotation label : labels) {
-      out.printf(
-          "\t%s (score: %.3f)\n",
-          label.getDescription(),
-          label.getScore());
+        return terms;
     }
-    if (labels.isEmpty()) {
-      out.println("\tNo labels found.");
+
+
+    /**
+     * Prints the labels received from the Vision API.
+     */
+    public static void printLabels(PrintStream out, String imagePath, List<EntityAnnotation> labels) {
+        out.printf("Labels for image %s:\n", imagePath);
+        for (EntityAnnotation label : labels) {
+            out.printf(
+                    "\t%s (score: %.3f)\n",
+                    label.getDescription(),
+                    label.getScore());
+        }
+        if (labels.isEmpty()) {
+            out.println("\tNo labels found.");
+        }
     }
-  }
-  // [END run_application]
+    // [END run_application]
 
-  // [START authenticate]
-  /**
-   * Connects to the Vision API using Application Default Credentials.
-   */
-  public static Vision getVisionService() throws IOException, GeneralSecurityException {
-    GoogleCredential credential =
-        GoogleCredential.getApplicationDefault().createScoped(VisionScopes.all());
-    JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-    return new Vision.Builder(GoogleNetHttpTransport.newTrustedTransport(), jsonFactory, credential)
-            .setApplicationName(APPLICATION_NAME)
-            .build();
-  }
-  // [END authenticate]
+    // [START authenticate]
 
-  private final Vision vision;
-
-  /**
-   * Constructs a {@link ImageTermFactory} which connects to the Vision API.
-   */
-  public ImageTermFactory(Vision vision) {
-    this.vision = vision;
-  }
-
-  /**
-   * Gets up to {@code maxResults} labels for an image stored at {@code path}.
-   */
-  public List<EntityAnnotation> labelImage(Path path, int maxResults) throws IOException {
-    // [START construct_request]
-    byte[] data = Files.readAllBytes(path);
-
-    AnnotateImageRequest request =
-        new AnnotateImageRequest()
-            .setImage(new Image().encodeContent(data))
-            .setFeatures(ImmutableList.of(
-                new Feature()
-                    .setType("LABEL_DETECTION")
-                    .setMaxResults(maxResults)));
-    Vision.Images.Annotate annotate =
-        vision.images()
-            .annotate(new BatchAnnotateImagesRequest().setRequests(ImmutableList.of(request)));
-    // Due to a bug: requests to Vision API containing large images fail when GZipped.
-    // annotate.setDisableGZipContent(true);
-    // [END construct_request]
-
-    // [START parse_response]
-    BatchAnnotateImagesResponse batchResponse = annotate.execute();
-    assert batchResponse.getResponses().size() == 1;
-    AnnotateImageResponse response = batchResponse.getResponses().get(0);
-    if (response.getLabelAnnotations() == null) {
-      throw new IOException(
-          response.getError() != null
-              ? response.getError().getMessage()
-              : "Unknown error getting image annotations");
+    /**
+     * Connects to the Vision API using Application Default Credentials.
+     */
+    public static Vision getVisionService() throws IOException, GeneralSecurityException {
+        GoogleCredential credential =
+                GoogleCredential.getApplicationDefault().createScoped(VisionScopes.all());
+        JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+        return new Vision.Builder(GoogleNetHttpTransport.newTrustedTransport(), jsonFactory, credential)
+                .setApplicationName(APPLICATION_NAME)
+                .build();
     }
-    return response.getLabelAnnotations();
-    // [END parse_response]
-  }
+    // [END authenticate]
+
+    private final Vision vision;
+
+    /**
+     * Constructs a {@link ImageTermFactory} which connects to the Vision API.
+     */
+    public ImageTermFactory(Vision vision) {
+        this.vision = vision;
+    }
+
+    /**
+     * Gets up to {@code maxResults} labels for an image stored at {@code path}.
+     */
+    public List<EntityAnnotation> labelImage(URL url, int maxResults) throws IOException {
+        // [START construct_request]
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        InputStream inputStream = null;
+        try {
+            inputStream = url.openStream();
+            byte[] byteChunk = new byte[4096];
+            int n;
+
+            while ((n = inputStream.read(byteChunk)) > 0) {
+                baos.write(byteChunk, 0, n);
+            }
+        } catch (IOException e) {
+            System.err.printf("Failed while reading bytes from %s: %s", url.toExternalForm(), e.getMessage());
+            e.printStackTrace();
+            // Perform any other exception handling that's appropriate.
+        } finally {
+            if (inputStream != null) {
+                inputStream.close();
+            }
+        }
+        byte[] data = baos.toByteArray();
+
+        AnnotateImageRequest request =
+                new AnnotateImageRequest()
+                        .setImage(new Image().encodeContent(data))
+                        .setFeatures(ImmutableList.of(
+                                new Feature()
+                                        .setType("LABEL_DETECTION")
+                                        .setMaxResults(maxResults)));
+        Vision.Images.Annotate annotate =
+                vision.images()
+                        .annotate(new BatchAnnotateImagesRequest().setRequests(ImmutableList.of(request)));
+        // Due to a bug: requests to Vision API containing large images fail when GZipped.
+        // annotate.setDisableGZipContent(true);
+        // [END construct_request]
+
+        // [START parse_response]
+        BatchAnnotateImagesResponse batchResponse = annotate.execute();
+        assert batchResponse.getResponses().size() == 1;
+        AnnotateImageResponse response = batchResponse.getResponses().get(0);
+        if (response.getLabelAnnotations() == null) {
+            throw new IOException(
+                    response.getError() != null
+                            ? response.getError().getMessage()
+                            : "Unknown error getting image annotations");
+        }
+        return response.getLabelAnnotations();
+        // [END parse_response]
+    }
 }

@@ -73,7 +73,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.google.cloud.vision.samples.label.LabelApp</mainClass>
+                            <mainClass>search.ImageTermFactory</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
