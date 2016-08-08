@@ -31,7 +31,7 @@ public class TwitterFetcher {
 		Document doc = conn.get();
 
 		// select the content text and pull out the paragraphs.
-		Element content = doc.getElementByClassName("mw-content-text");
+		Element content = doc.getElementByClassName("stream");
 
 		// TODO: avoid selecting paragraphs from sidebars and boxouts
 		Elements paras = content.select("p");
@@ -57,7 +57,7 @@ public class TwitterFetcher {
 		Document doc = Jsoup.parse(stream, "UTF-8", filename);
 
 		// TODO: factor out the following repeated code
-		Element content = doc.getElementById("mw-content-text");
+		Element content = doc.getElementById("stream");
 		Elements paras = content.select("p");
 		return paras;
 	}

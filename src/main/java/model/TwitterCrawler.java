@@ -16,11 +16,11 @@ public class TwitterCrawler {
 	// keeps track of where we started
 	private final String source;
 	
-	// the index where the results go
-	private JedisIndex index;
-	
 	// queue of URLs to be travelled through
 	private Queue<String> queue = new LinkedList<String>();
+
+	// keeps track of the URLs we've already visited
+	private ArrayList<String> history = new List<String>();
 
 	//@syd
 	// array list of image URLs to be searched via vision for relevance
@@ -33,11 +33,10 @@ public class TwitterCrawler {
 	 * Constructor.
 	 * 
 	 * @param source
-	 * @param index
+	 *
 	 */
-	public TwitterCrawler(String source, JedisIndex index) {
+	public TwitterCrawler(String source) {
 		this.source = source;
-		this.index = index;
 		queue.offer(source);
 	}
 
@@ -59,10 +58,10 @@ public class TwitterCrawler {
 		return images.size();	
 	}
 	/**
-	 * Gets a URL from the queue and indexes it.
+	 * Gets a URL from the queue 
 	 * @param b 
 	 * 
-	 * @return Number of pages indexed.
+	 * @return page crawled through
 	 * @throws IOException
 	 */
 	public String crawl(boolean testing) throws IOException {
@@ -72,8 +71,8 @@ public class TwitterCrawler {
 		String url = queue.poll();
 		System.out.println("Crawling " + url);
 
-		if (testing==false && index.isIndexed(url)) {
-			System.out.println("Already indexed.");
+		if (history.contains(url)) { //if the URL is already in the list of past urls
+			System.out.println("Already visited.");
 			return null;
 		}
 		
@@ -83,7 +82,8 @@ public class TwitterCrawler {
 		} else {
 			paragraphs = wf.fetchTwitter(url);
 		}
-		index.indexPage(url, paragraphs);
+
+		history.add(url); // add the URL to the list of places visited
 		queueInternalLinks(paragraphs);
 		addImages(paragraphs);	
 		return url;
@@ -110,14 +110,29 @@ public class TwitterCrawler {
 		Elements elts = paragraph.select("a[href]");
 		for (Element elt: elts) {
 			String relURL = elt.attr("href");
-			
+
 			if (relURL.startsWith("/")) {
 				String absURL = "https://www.twitter.com" + relURL;
 				System.out.println(absURL);
-				queue.offer(absURL);
+				queue.offer(absURL); //queue link
+			} else {
+				queue.offer(relURL); //queue link
 			}
 		}
+
+
+	/**
+	 * Parses paragraphs and adds internal links to the queue.
+	 * 
+	 * @param paragraphs
+	 */
+	// NOTE: absence of access level modifier means package-level
+	void addImages(Elements paragraphs) {
+		for (Element paragraph: paragraphs) {
+			addImages(paragraph);
+		}
 	}
+
 
 	/**
 	* Adds image links from 
@@ -129,32 +144,28 @@ public class TwitterCrawler {
 
 		for (Element image: images) {
 			String imgURL = elt.attr("href");
-			System.out.println("THIS IS THE IMAGE URL" + imgURL);
-			images.add(imgURL);
+			if (!images.contains(imgURL)){ //is this a unique image url?
+				//yes add it to the image arraylist
+				images.add(imgURL);	
+			} else {
+				//no just skip it
+				//System.out.println("Image already in set of images");
+				break;
+			}
+			
 		}
 	}
 	
 	public static void main(String[] args) throws IOException {
 		
 		// make a TwitterCrawler
-		Jedis jedis = JedisMaker.make();
-		JedisIndex index = new JedisIndex(jedis); 
 		String source = "https://twitter.com/BarackObama";
-		TwitterCrawler wc = new TwitterCrawler(source, index);
+		TwitterCrawler wc = new TwitterCrawler(source);
 		
 		// for testing purposes, load up the queue
 		Elements paragraphs = wf.fetchTwitter(source);
 		wc.queueInternalLinks(paragraphs);
 
-		// loop until we index a new page
-		String res;
-		do {
-			res = wc.crawl(false);
-		} while (res == null);
 		
-		Map<String, Integer> map = index.getCounts("the");
-		for (Entry<String, Integer> entry: map.entrySet()) {
-			System.out.println(entry);
-		}
 	}
 }
