@@ -1,4 +1,4 @@
-package com.flatironschool.javacs;
+package model;
 
 import java.io.File;
 import java.io.IOException;
