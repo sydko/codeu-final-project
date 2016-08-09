@@ -50,7 +50,7 @@ public class TwitterFetcher {
 
 		// assemble the file name
 		String slash = File.separator;
-		String filename = "resources" + slash + realURL.getHost() + realURL.getPath();
+		String filename = "../resources" + slash + realURL.getHost() + realURL.getPath();
 
 		// read the file
 		InputStream stream = TwitterFetcher.class.getClassLoader().getResourceAsStream(filename);
