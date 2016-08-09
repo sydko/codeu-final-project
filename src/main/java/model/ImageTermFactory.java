@@ -55,7 +55,7 @@ public class ImageTermFactory {
      */
     private static final String APPLICATION_NAME = "Google-VisionLabelSample/1.0";
 
-    private static final int MAX_LABELS = 300;
+    private static final int MAX_LABELS = 10;
 
     // [START run_application]
 
@@ -154,7 +154,7 @@ public class ImageTermFactory {
             }
         }
         byte[] data = baos.toByteArray();
-
+        System.out.println("The stream length is " + data.length);
         AnnotateImageRequest request =
                 new AnnotateImageRequest()
                         .setImage(new Image().encodeContent(data))
@@ -171,15 +171,17 @@ public class ImageTermFactory {
 
         // [START parse_response]
         BatchAnnotateImagesResponse batchResponse = annotate.execute();
-        assert batchResponse.getResponses().size() == 1;
-        AnnotateImageResponse response = batchResponse.getResponses().get(0);
-        if (response.getLabelAnnotations() == null) {
-            throw new IOException(
-                    response.getError() != null
-                            ? response.getError().getMessage()
-                            : "Unknown error getting image annotations");
+        if (batchResponse.getResponses().size() == 1) {
+            AnnotateImageResponse response = batchResponse.getResponses().get(0);
+            if (response.getLabelAnnotations() == null) {
+                throw new IOException(
+                        response.getError() != null
+                                ? response.getError().getMessage()
+                                : "Unknown error getting image annotations");
+            }
+            return response.getLabelAnnotations();
         }
-        return response.getLabelAnnotations();
+        return null;
         // [END parse_response]
     }
 }
