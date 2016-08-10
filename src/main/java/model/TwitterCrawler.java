@@ -25,7 +25,7 @@ public class TwitterCrawler {
 
 	//@syd
 	// array list of image URLs to be searched via vision for relevance
-	private ArrayList<Element> images;
+	private ArrayList<String> images;
 
 	// fetcher used to get pages from Twitter
 	final static TwitterFetcher wf = new TwitterFetcher();
@@ -142,10 +142,10 @@ public class TwitterCrawler {
 	*/
 	private void addImages(Element paragraph){
 		//Elements images = paragraph.select("img");
-		Elements image_elements = paragraph.getElementByClassName("AdaptiveMedia-photoContainer js-adaptive-photo");
+		Elements image_elements = paragraph.getElementsByClass("AdaptiveMedia-photoContainer js-adaptive-photo");
 
 		for (Element image: image_elements) {
-			String imgURL = elt.attr("href");
+			String imgURL = image.attr("href");
 			if (!images.contains(imgURL)){ //is this a unique image url?
 				//yes add it to the image arraylist
 				images.add(imgURL);	

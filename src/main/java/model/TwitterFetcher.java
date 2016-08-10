@@ -31,7 +31,7 @@ public class TwitterFetcher {
 		Document doc = conn.get();
 
 		// select the content text and pull out the paragraphs.
-		Element content = doc.getElementByClassName("stream");
+		Elements content = doc.getElementsByClass("stream");
 
 		// TODO: avoid selecting paragraphs from sidebars and boxouts
 		Elements paras = content.select("p");
