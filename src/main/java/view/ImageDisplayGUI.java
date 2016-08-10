@@ -73,7 +73,7 @@ public class ImageDisplayGUI extends Application {
         //Initializes user's screenWidth and screenHeight
         getScreenWidthHeight();
         Scene scene = new Scene(grid, screenWidth, screenHeight);
-        scene.getStylesheets().add("imagedisplaygui/ImageDisplayCss/ImageDisplayGUI.css");
+        scene.getStylesheets().add(this.getClass().getResource("../css/ImageDisplayGUI.css").toExternalForm());
         
         //Some links have a certificate issue, this will bypass most of them
         fixHttpsIssue();
@@ -81,9 +81,13 @@ public class ImageDisplayGUI extends Application {
         //Initialize Array of URL strings
         String source = "https://twitter.com/BarackObama";
         TwitterCrawler wc = new TwitterCrawler(source);
-        wc.crawl(false);
+        wc.crawl(false, 50);
+        System.out.println("Found " + wc.numberOfImages() + " images!");
+        System.exit(0);
         index = ImageTermFactory.getTermMap(wc.getImages());
-        ArrayList<String> imgArr = getStrings();
+
+        System.out.println("Finished indexing");
+        ArrayList<String> imgArr = new ArrayList<>(index.keySet());
                
         // Set up the ListView
         list.setMaxHeight(100);
@@ -134,9 +138,11 @@ public class ImageDisplayGUI extends Application {
         StackPane p = new StackPane();
         p.setPrefSize(700,100);
         p.getChildren().add(scenetitle);
-        StackPane.setAlignment(scenetitle,Pos.CENTER);
-        grid.add(p, 0,0);
+        StackPane.setAlignment(scenetitle, Pos.CENTER);
+        grid.add(p, 0, 0);
 
+        addImgToGrid(primaryStage);
+        sp.setContent(grid2);
         //Sets up page
         primaryStage.setTitle("San Fransokyo");
         primaryStage.setScene(scene);
@@ -148,6 +154,7 @@ public class ImageDisplayGUI extends Application {
     public void updateList(String oldVal, String newVal) {
         // If the number of characters in the text box is less than last time
         // it must be because the user pressed delete
+        System.out.println("Updating List....");
         if ( oldVal != null && (newVal.length() < oldVal.length()) ) {
             // Restore the lists original set of entries 
             // and start from the beginning

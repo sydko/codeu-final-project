@@ -73,7 +73,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>model.ImageTermFactory</mainClass>
+                            <mainClass>view.ImageDisplayGUI</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

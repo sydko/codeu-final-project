@@ -18,7 +18,7 @@ public class TwitterCrawler {
 	private final String source;
 	
 	// queue of URLs to be travelled through
-	private Queue<String> queue = new LinkedList<String>();
+	private Queue<String> queue = new LinkedList<>();
 
 	// keeps track of the URLs we've already visited
 	private ArrayList<String> history;
@@ -38,6 +38,7 @@ public class TwitterCrawler {
 	 */
 	public TwitterCrawler(String source) {
 		this.source = source;
+		history = new ArrayList<>();
 		images = new ArrayList<>();
 		queue.offer(source);
 	}
@@ -65,35 +66,34 @@ public class TwitterCrawler {
 	}
 	/**
 	 * Gets a URL from the queue 
-	 * @param b 
-	 * 
-	 * @return page crawled through
+	 * @param testing to decide reading or fetching
+	 * @param limit the limit of crawled links
 	 * @throws IOException
 	 */
-	public String crawl(boolean testing) throws IOException {
-		if (queue.isEmpty()) {
-			
-			return null;
-		}
-		String url = queue.poll();
-		System.out.println("Crawling " + url);
+	public void crawl(boolean testing, int limit) throws IOException {
+		for (int i = 0; i < limit; i++) {
+			if (queue.isEmpty()) {
+				return;
+			}
+			String url = queue.poll();
+			System.out.println("Crawling " + url);
 
-		if (history.contains(url)) { //if the URL is already in the list of past urls
-			System.out.println("Already visited.");
-			return null;
-		}
-		
-		Elements paragraphs;
-		if (testing) {
-			paragraphs = wf.readTwitter(url);
-		} else {
-			paragraphs = wf.fetchTwitter(url);
-		}
+			if (history.contains(url)) { //if the URL is already in the list of past urls
+				System.out.println("Already visited.");
+				continue;
+			}
 
-		history.add(url); // add the URL to the list of places visited
-		queueInternalLinks(paragraphs);
-		addImages(paragraphs);	
-		return url;
+			Elements paragraphs;
+			if (testing) {
+				paragraphs = wf.readTwitter(url);
+			} else {
+				paragraphs = wf.fetchTwitter(url);
+			}
+
+			history.add(url); // add the URL to the list of places visited
+			queueInternalLinks(paragraphs);
+			addImages(paragraphs);
+		}
 	}
 
 	/**
@@ -120,7 +120,7 @@ public class TwitterCrawler {
 
 			if (relURL.startsWith("/")) {
 				String absURL = "https://www.twitter.com" + relURL;
-				System.out.println(absURL);
+//				System.out.println(absURL);
 				queue.offer(absURL); //queue link
 			} else {
 				queue.offer(relURL); //queue link
@@ -135,8 +135,13 @@ public class TwitterCrawler {
 	 */
 	// NOTE: absence of access level modifier means package-level
 	void addImages(Elements paragraphs) {
+
 		for (Element paragraph: paragraphs) {
-			addImages(paragraph);
+			Elements content = paragraph.getElementsByClass("AdaptiveMedia-singlePhoto");
+			for(Element pic : content) {
+				addImages(pic);
+			}
+
 		}
 	}
 
@@ -146,18 +151,14 @@ public class TwitterCrawler {
 	*
 	*/
 	private void addImages(Element paragraph){
-		//Elements images = paragraph.select("img");
-		Elements image_elements = paragraph.getElementsByClass("AdaptiveMedia-photoContainer js-adaptive-photo");
+		Elements image_elements = paragraph.getElementsByTag("img");
+//		Elements image_elements = everything.getElementsByTag("img");
 
 		for (Element image: image_elements) {
-			String imgURL = image.attr("href");
+			String imgURL = image.attr("src");
 			if (!images.contains(imgURL)){ //is this a unique image url?
 				//yes add it to the image arraylist
 				images.add(imgURL);	
-			} else {
-				//no just skip it
-				//System.out.println("Image already in set of images");
-				break;
 			}
 			
 		} 
