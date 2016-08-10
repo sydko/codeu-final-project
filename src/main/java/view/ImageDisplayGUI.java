@@ -257,8 +257,7 @@ public class ImageDisplayGUI extends Application {
         grid2.add(hb, 0, hbRow);
         
     }
-    
-    
+
     private GridPane initializeGridLayout(GridPane grid) {
         grid.setHgap(20);
         grid.setVgap(20);
