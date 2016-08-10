@@ -71,7 +71,6 @@ public class ImageTermFactory {
                 index.put(image_url, terms);
             }
         }
-
         return index;
     }
 
