@@ -172,10 +172,11 @@ public class ImageTermFactory {
         assert batchResponse.getResponses().size() == 1;
         AnnotateImageResponse response = batchResponse.getResponses().get(0);
         if (response.getLabelAnnotations() == null) {
-            throw new IOException(
-                    response.getError() != null
-                            ? response.getError().getMessage()
-                            : "Unknown error getting image annotations");
+            return null;
+//            throw new IOException(
+//                    response.getError() != null
+//                            ? response.getError().getMessage()
+//                            : "Unknown error getting image annotations");
         }
         return response.getLabelAnnotations();
         // [END parse_response]

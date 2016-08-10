@@ -78,7 +78,6 @@ public class ImageDisplayGUI extends Application {
         TwitterCrawler wc = new TwitterCrawler(source);
         wc.crawl(false, 50);
         System.out.println("Found " + wc.numberOfImages() + " images!");
-        System.exit(0);
         index = ImageTermFactory.getTermMap(wc.getImages());
 
         System.out.println("Finished indexing");
@@ -259,27 +258,6 @@ public class ImageDisplayGUI extends Application {
         
     }
     
-    public ArrayList<String> getStrings() {
-        ArrayList<String> arr = new ArrayList<String>();
-        arr.add("https://pixabay.com/static/uploads/photo/2014/05/23/12/06/cat-351926_960_720.jpg");
-        arr.add("http://static.boredpanda.com/blog/wp-content/uploads/2016/04/beautiful-fluffy-cat-british-longhair-thumb.jpg");
-        arr.add("http://mikecann.co.uk/wp-content/uploads/2009/12/javafx_logo_color_1.jpg");
-        arr.add("https://pixabay.com/static/uploads/photo/2014/05/23/12/06/cat-351926_960_720.jpg");
-        arr.add("https://pixabay.com/static/uploads/photo/2014/05/23/12/06/cat-351926_960_720.jpg");
-        arr.add("http://static.boredpanda.com/blog/wp-content/uploads/2016/04/beautiful-fluffy-cat-british-longhair-thumb.jpg");
-        arr.add("http://mikecann.co.uk/wp-content/uploads/2009/12/javafx_logo_color_1.jpg");
-        arr.add("https://pixabay.com/static/uploads/photo/2014/05/23/12/06/cat-351926_960_720.jpg");
-        arr.add("https://pixabay.com/static/uploads/photo/2014/05/23/12/06/cat-351926_960_720.jpg");
-        arr.add("http://static.boredpanda.com/blog/wp-content/uploads/2016/04/beautiful-fluffy-cat-british-longhair-thumb.jpg");
-        arr.add("http://mikecann.co.uk/wp-content/uploads/2009/12/javafx_logo_color_1.jpg");
-        arr.add("https://pixabay.com/static/uploads/photo/2014/05/23/12/06/cat-351926_960_720.jpg");
-        arr.add("https://pixabay.com/static/uploads/photo/2014/05/23/12/06/cat-351926_960_720.jpg");
-        arr.add("http://static.boredpanda.com/blog/wp-content/uploads/2016/04/beautiful-fluffy-cat-british-longhair-thumb.jpg");
-        arr.add("http://mikecann.co.uk/wp-content/uploads/2009/12/javafx_logo_color_1.jpg");
-        arr.add("https://pixabay.com/static/uploads/photo/2014/05/23/12/06/cat-351926_960_720.jpg");
-        
-        return arr;
-    }
     
     private GridPane initializeGridLayout(GridPane grid) {
         grid.setHgap(20);
