@@ -5,11 +5,12 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import redis.clients.jedis.Jedis;
 
 
 public class TwitterCrawler {
@@ -20,11 +21,11 @@ public class TwitterCrawler {
 	private Queue<String> queue = new LinkedList<String>();
 
 	// keeps track of the URLs we've already visited
-	private ArrayList<String> history = new List<String>();
+	private ArrayList<String> history;
 
 	//@syd
 	// array list of image URLs to be searched via vision for relevance
-	private ArrayList<String> images = new List<String>();
+	private ArrayList<Element> images;
 
 	// fetcher used to get pages from Twitter
 	final static TwitterFetcher wf = new TwitterFetcher();
@@ -66,6 +67,7 @@ public class TwitterCrawler {
 	 */
 	public String crawl(boolean testing) throws IOException {
 		if (queue.isEmpty()) {
+			
 			return null;
 		}
 		String url = queue.poll();
@@ -119,7 +121,7 @@ public class TwitterCrawler {
 				queue.offer(relURL); //queue link
 			}
 		}
-
+	}
 
 	/**
 	 * Parses paragraphs and adds internal links to the queue.
@@ -140,9 +142,9 @@ public class TwitterCrawler {
 	*/
 	private void addImages(Element paragraph){
 		//Elements images = paragraph.select("img");
-		Elements images = paragraph.getElementByClassName("AdaptiveMedia-photoContainer js-adaptive-photo");
+		Elements image_elements = paragraph.getElementByClassName("AdaptiveMedia-photoContainer js-adaptive-photo");
 
-		for (Element image: images) {
+		for (Element image: image_elements) {
 			String imgURL = elt.attr("href");
 			if (!images.contains(imgURL)){ //is this a unique image url?
 				//yes add it to the image arraylist
@@ -153,7 +155,7 @@ public class TwitterCrawler {
 				break;
 			}
 			
-		}
+		} 
 	}
 	
 	public static void main(String[] args) throws IOException {
@@ -165,7 +167,8 @@ public class TwitterCrawler {
 		// for testing purposes, load up the queue
 		Elements paragraphs = wf.fetchTwitter(source);
 		wc.queueInternalLinks(paragraphs);
-
+		
 		
 	}
 }
+ 
