@@ -16,3 +16,8 @@ Derek Sollenberger
 ##Expanding Beyond Wikipedia:
 - Using Twitter as source of images, particularly useful because Twitter doesn't have an image search function
 - Using Twitter Profiles of Political figures, starting at Barack Obama
+- 
+#Instructions for Running:
+Run these commands while in the root directory of the repository:
+$ mvn -q clean compile assembly:single
+$ java -cp target/final-project-1.0-SNAPSHOT-jar-with-dependencies.jar:src/main/resources/: view.ImageDisplayGUI
