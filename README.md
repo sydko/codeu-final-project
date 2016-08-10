@@ -19,5 +19,8 @@ Derek Sollenberger
 
 #Instructions for Running:
 Run these commands while in the root directory of the repository:
+~~~
 $ mvn -q clean compile assembly:single
 $ java -cp target/final-project-1.0-SNAPSHOT-jar-with-dependencies.jar:src/main/resources/: view.ImageDisplayGUI
+~~~
+Users should have GOOGLE_APPLICATION_CREDENTIALS set as an environment variable, and have access to a Google Cloud Vision API key. We have noticed that there are fewer issues when not running on Windows.
