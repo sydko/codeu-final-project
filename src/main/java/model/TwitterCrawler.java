@@ -38,6 +38,7 @@ public class TwitterCrawler {
 	 */
 	public TwitterCrawler(String source) {
 		this.source = source;
+		images = new ArrayList<>();
 		queue.offer(source);
 	}
 
@@ -48,6 +49,10 @@ public class TwitterCrawler {
 	 */
 	public int queueSize() {
 		return queue.size();	
+	}
+
+	public List<String> getImages() {
+		return images;
 	}
 
 	/**

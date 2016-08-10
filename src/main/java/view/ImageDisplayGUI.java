@@ -1,7 +1,9 @@
-package imagedisplaygui;
+package view;
 
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import javafx.application.Application;
@@ -39,6 +41,13 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Priority;
 
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.List;
+
+import model.*;
+
 /**
  *
  * @author lucyxiao
@@ -54,9 +63,10 @@ public class ImageDisplayGUI extends Application {
         GridPane grid = new GridPane();
         GridPane grid2 = new GridPane();
         ScrollPane sp = new ScrollPane();
+        Map<String, Map<String, Double>> index;
  
     @Override
-    public void start(Stage primaryStage) throws NoSuchAlgorithmException, KeyManagementException {
+    public void start(Stage primaryStage) throws NoSuchAlgorithmException, KeyManagementException, IOException, GeneralSecurityException {
         //Initialize the main grid layout
         grid = initializeGridLayout(grid);
 
@@ -69,6 +79,10 @@ public class ImageDisplayGUI extends Application {
         fixHttpsIssue();
         
         //Initialize Array of URL strings
+        String source = "https://twitter.com/BarackObama";
+        TwitterCrawler wc = new TwitterCrawler(source);
+        wc.crawl(false);
+        index = ImageTermFactory.getTermMap(wc.getImages());
         ArrayList<String> imgArr = getStrings();
                
         // Set up the ListView
@@ -142,24 +156,39 @@ public class ImageDisplayGUI extends Application {
          
         // Break out all of the parts of the search text 
         // by splitting on white space
-        String[] parts = newVal.toUpperCase().split(" ");
+        String[] parts = newVal.toLowerCase().split(" ");
  
         // Filter out the entries that don't contain the entered text
         ObservableList<String> subentries = FXCollections.observableArrayList();
-        for ( Object entry: entries) {
-            boolean match = true;
-            String entryText = (String)entry;
-            for ( String part: parts ) {
-                // The entry needs to contain all portions of the
-                // search string *but* in any order
-                if ( ! entryText.toUpperCase().contains(part) ) {
-                    match = false;
-                    break;
-                }
-            }
-            if ( match ) {
-                subentries.add(entryText);
-            }
+//        for ( Object entry: entries) {
+//            boolean match = true;
+//            String entryText = (String)entry;
+//            for ( String part: parts ) {
+//                // The entry needs to contain all portions of the
+//                // search string *but* in any order
+//                if ( ! entryText.toUpperCase().contains(part) ) {
+//                    match = false;
+//                    break;
+//                }
+//            }
+//            if ( match ) {
+//                subentries.add(entryText);
+//            }
+//        }
+        Map<String, Double> presort = ImageTermFactory.getRelevantURLs(index, parts[0]);
+        List<Entry<String, Double>> sorted  = new LinkedList<>(presort.entrySet());
+             sorted.sort((a, b) -> {
+                 double test = b.getValue() - a.getValue();
+                 if (test < 0) {
+                     return -1;
+                 } else if (test > 0) {
+                     return 1;
+                 } else {
+                     return 0;
+                 }
+             });
+        for (Entry<String, Double> e : sorted) {
+            subentries.add(e.getKey());
         }
         list.setItems(subentries);
     }
@@ -260,7 +289,7 @@ public class ImageDisplayGUI extends Application {
     }
     
     /**
-    * @param urlClass the class containing the instance variable for array 
+    *
     * containing image urls
     * @author lucyxiao
     */

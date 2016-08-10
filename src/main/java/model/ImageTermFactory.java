@@ -56,16 +56,33 @@ public class ImageTermFactory {
     printLabels(System.out, args[0], app.labelImage(new URL(args[0]), MAX_LABELS));
     }
 
-    public Map<String, Double> getTermMap(String image_url) throws IOException, GeneralSecurityException {
+    public static Map<String ,Map<String, Double>> getTermMap(List<String> image_urls) throws IOException, GeneralSecurityException {
         ImageTermFactory app = new ImageTermFactory(getVisionService());
-        URL url = new URL(image_url);
-        List<EntityAnnotation> labels = app.labelImage(url, MAX_LABELS);
-        Map<String, Double> terms = new HashMap<>();
-        for (EntityAnnotation label : labels) {
-            terms.put(label.getDescription(), label.getScore().doubleValue());
+        Map<String, Map<String, Double>> index = new HashMap<>();
+
+        for (String image_url : image_urls) {
+            URL url = new URL(image_url);
+            List<EntityAnnotation> labels = app.labelImage(url, MAX_LABELS);
+            if (labels != null) {
+                Map<String, Double> terms = new HashMap<>();
+                for (EntityAnnotation label : labels) {
+                    terms.put(label.getDescription(), label.getScore().doubleValue());
+                }
+                index.put(image_url, terms);
+            }
         }
 
-        return terms;
+        return index;
+    }
+
+    public static Map<String, Double> getRelevantURLs(Map<String ,Map<String, Double>> index, String term) {
+        Map<String, Double> links = new HashMap<>();
+        for (Map.Entry<String, Map<String, Double>> ele : index.entrySet()) {
+            if (ele.getValue().containsKey(term)) {
+                links.put(ele.getKey(), ele.getValue().get(term));
+            }
+        }
+        return links;
     }
 
 
