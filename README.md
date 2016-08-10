@@ -24,3 +24,6 @@ $ mvn -q clean compile assembly:single
 $ java -cp target/final-project-1.0-SNAPSHOT-jar-with-dependencies.jar:src/main/resources/: view.ImageDisplayGUI
 ~~~
 Users should have GOOGLE_APPLICATION_CREDENTIALS set as an environment variable, and have access to a Google Cloud Vision API key. We have noticed that there are fewer issues when not running on Windows.
+
+###Notes:
+After images have been collected, there is a period of time where the program is labeling each of the images. The program has not stalled please just wait for the images to be labeled. Thank you!
