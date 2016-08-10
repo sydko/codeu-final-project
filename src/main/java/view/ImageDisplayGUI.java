@@ -48,18 +48,13 @@ import java.util.List;
 
 import model.*;
 
-/**
- *
- * @author lucyxiao
- */
 public class ImageDisplayGUI extends Application {
         //spacing is the space between two images
         private int spacing = 5;
         private int numImgPerRow = 5;
         private int screenWidth;
         private int screenHeight;
-        ObservableList<String> entries = FXCollections.observableArrayList();    
-        ListView list = new ListView();
+        ArrayList<String> entries = new ArrayList<String>();    
         GridPane grid = new GridPane();
         GridPane grid2 = new GridPane();
         ScrollPane sp = new ScrollPane();
@@ -87,17 +82,8 @@ public class ImageDisplayGUI extends Application {
         index = ImageTermFactory.getTermMap(wc.getImages());
 
         System.out.println("Finished indexing");
-        ArrayList<String> imgArr = new ArrayList<>(index.keySet());
-               
-        // Set up the ListView
-        list.setMaxHeight(100);
+        entries.addAll(new ArrayList<>(index.keySet()));
 
-        //Add all data to an observabe ArrayList
-        for (String entry : imgArr) {
-            entries.add(entry);
-        }
-        //Might delete list which displays entries
-        list.setItems( entries );
 
 //        grid2.setGridLinesVisible(true);
 //        grid.setGridLinesVisible(true);
@@ -120,7 +106,7 @@ public class ImageDisplayGUI extends Application {
         searchButton.getStyleClass().add("button-search");
         searchButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
-                updateList("", txt.getCharacters().toString());
+                updateList(txt.getCharacters().toString());
                 addImgToGrid(primaryStage);
                 sp.setContent(grid2);
             }
@@ -151,37 +137,14 @@ public class ImageDisplayGUI extends Application {
     
     //Called everytime Search is clicked
     //Updates list of images relevant to search term
-    public void updateList(String oldVal, String newVal) {
-        // If the number of characters in the text box is less than last time
-        // it must be because the user pressed delete
-        System.out.println("Updating List....");
-        if ( oldVal != null && (newVal.length() < oldVal.length()) ) {
-            // Restore the lists original set of entries 
-            // and start from the beginning
-            list.setItems( entries );
-        }
-         
-        // Break out all of the parts of the search text 
+
+    public void updateList(String newVal) {
+        // Break out all of the parts of the search text
         // by splitting on white space
         String[] parts = newVal.toLowerCase().split(" ");
  
         // Filter out the entries that don't contain the entered text
-        ObservableList<String> subentries = FXCollections.observableArrayList();
-//        for ( Object entry: entries) {
-//            boolean match = true;
-//            String entryText = (String)entry;
-//            for ( String part: parts ) {
-//                // The entry needs to contain all portions of the
-//                // search string *but* in any order
-//                if ( ! entryText.toUpperCase().contains(part) ) {
-//                    match = false;
-//                    break;
-//                }
-//            }
-//            if ( match ) {
-//                subentries.add(entryText);
-//            }
-//        }
+        ArrayList<String> subentries = new ArrayList();
         Map<String, Double> presort = ImageTermFactory.getRelevantURLs(index, parts[0]);
         List<Entry<String, Double>> sorted  = new LinkedList<>(presort.entrySet());
              sorted.sort((a, b) -> {
@@ -197,7 +160,7 @@ public class ImageDisplayGUI extends Application {
         for (Entry<String, Double> e : sorted) {
             subentries.add(e.getKey());
         }
-        list.setItems(subentries);
+        entries = subentries;
     }
     
     //Updates image grid
@@ -218,7 +181,7 @@ public class ImageDisplayGUI extends Application {
         // Double counted spacing for last image in row so we have to subtract spacing
         double perfectImgWidth = (screenWidth - spacing * 4.0 - 17 - 20)/numImgPerRow;
             
-        for (Object imgUrlObj : list.getItems()) {
+        for (Object imgUrlObj : entries) {
            String imgUrl = (String) imgUrlObj;
            //Set settings to make images load faster
            Image img = new Image(imgUrl, perfectImgWidth, 0, true, false, true);
@@ -276,12 +239,13 @@ public class ImageDisplayGUI extends Application {
                 }
             });
             
-           
             hbWidth += perfectImgWidth;
             count += 1;
             System.out.println(count + ": " + (hbWidth ) + " vs " + (screenWidth - spacing * 4.0 - 17));
             
-            // If row width is bigger than available space, add img to next row
+             // If row width is bigger than available space, add img to next row
+            // ScrollBar has width 17 pixels, grid2 has inset 10 pixel each side
+            // Double counted spacing for last image in row so we have to subtract spacing
             if (hbWidth >= screenWidth - spacing * 4.0 - 17 - 20) {             
                 grid2.add(hb, 0, hbRow);
                 hb = new HBox(spacing);
@@ -295,11 +259,6 @@ public class ImageDisplayGUI extends Application {
         
     }
     
-    /**
-    *
-    * containing image urls
-    * @author lucyxiao
-    */
     public ArrayList<String> getStrings() {
         ArrayList<String> arr = new ArrayList<String>();
         arr.add("https://pixabay.com/static/uploads/photo/2014/05/23/12/06/cat-351926_960_720.jpg");

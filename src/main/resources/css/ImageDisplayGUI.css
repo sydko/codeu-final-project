@@ -1,12 +1,3 @@
-/*
-To change this license header, choose License Headers in Project Properties.
-To change this template file, choose Tools | Templates
-and open the template in the editor.
-*/
-/* 
-    Created on : Aug 6, 2016, 7:48:37 PM
-    Author     : lucyxiao
-*/
 .form-control {
     -fx-border-radius: 4px;
     -fx-background-color:white;
@@ -14,7 +5,10 @@ and open the template in the editor.
 
 .button-search {
     -fx-border-radius: 4px;
-    -fx-background-color:#cccccc;
+    -fx-background-color:#2196F3;
+    -fx-text-fill: white;
+    -fx-background-radius: 5,4,3,5;
+    -fx-background-insets: 0,1,2,0;
 }
 
 .modal {
