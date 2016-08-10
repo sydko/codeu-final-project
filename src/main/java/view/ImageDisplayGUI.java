@@ -27,13 +27,10 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import java.security.cert.X509Certificate;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.scene.CacheHint;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.input.Clipboard;
@@ -83,10 +80,6 @@ public class ImageDisplayGUI extends Application {
         System.out.println("Finished indexing");
         entries.addAll(new ArrayList<>(index.keySet()));
 
-
-//        grid2.setGridLinesVisible(true);
-//        grid.setGridLinesVisible(true);
-
         //Tells the ScrollPane to scroll only grid2
         //grid2 is the grid for images
         sp.setContent(grid2);
@@ -118,7 +111,7 @@ public class ImageDisplayGUI extends Application {
         searchBox.setAlignment(Pos.CENTER);
         
         //Creates page title label
-        Label scenetitle = new Label("Twitter Image Search");
+        Label scenetitle = new Label("ObamaSearch");
         scenetitle.setFont(Font.font("Tamoha", FontWeight.NORMAL, 72));
         StackPane p = new StackPane();
         p.setPrefSize(700,100);
@@ -129,7 +122,7 @@ public class ImageDisplayGUI extends Application {
         addImgToGrid(primaryStage);
         sp.setContent(grid2);
         //Sets up page
-        primaryStage.setTitle("San Fransokyo");
+        primaryStage.setTitle("Twitter Image Search");
         primaryStage.setScene(scene);
         primaryStage.show();
     }
@@ -240,7 +233,6 @@ public class ImageDisplayGUI extends Application {
             
             hbWidth += perfectImgWidth;
             count += 1;
-            System.out.println(count + ": " + (hbWidth ) + " vs " + (screenWidth - spacing * 4.0 - 17));
             
              // If row width is bigger than available space, add img to next row
             // ScrollBar has width 17 pixels, grid2 has inset 10 pixel each side

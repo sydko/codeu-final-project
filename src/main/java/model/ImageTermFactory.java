@@ -44,16 +44,16 @@ public class ImageTermFactory {
      * Annotates an image using the Vision API.
      */
     public static void main(String[] args) throws IOException, GeneralSecurityException {
-    if (args.length != 1) {
-      System.err.println("Missing imagePath argument.");
-      System.err.println("Usage:");
-      System.err.printf("\tjava %s imagePath\n", ImageTermFactory.class.getCanonicalName());
-      System.exit(1);
-    }
-//    Path imagePath = Paths.get(args[0]);
-//
-    ImageTermFactory app = new ImageTermFactory(getVisionService());
-    printLabels(System.out, args[0], app.labelImage(new URL(args[0]), MAX_LABELS));
+//    if (args.length != 1) {
+//      System.err.println("Missing imagePath argument.");
+//      System.err.println("Usage:");
+//      System.err.printf("\tjava %s imagePath\n", ImageTermFactory.class.getCanonicalName());
+//      System.exit(1);
+//    }
+////    Path imagePath = Paths.get(args[0]);
+////
+//    ImageTermFactory app = new ImageTermFactory(getVisionService());
+//    printLabels(System.out, args[0], app.labelImage(new URL(args[0]), MAX_LABELS));
     }
 
     public static Map<String ,Map<String, Double>> getTermMap(List<String> image_urls) throws IOException, GeneralSecurityException {
